@@ -64,6 +64,7 @@ class PNCPConfig(BaseModel):
     max_tentativas: int = 4
     pausa_entre_requisicoes_s: float = 1.0
     tamanho_pagina: int = 50
+    cache_ttl_h: float = 6.0
 
 
 class AppConfig(BaseModel):

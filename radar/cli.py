@@ -45,6 +45,33 @@ def _cmd_ping(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_coletar(args: argparse.Namespace) -> int:
+    from .db import conectar, contar, init_db
+    from .m1_coleta import coletar
+    from .pncp_client import PNCPClient
+
+    cfg = carregar_config()
+    ufs = args.ufs.split(",") if args.ufs else cfg.app.ufs_alvo
+    modalidades = ([int(x) for x in args.modalidades.split(",")] if args.modalidades
+                   else cfg.app.modalidades_alvo)
+
+    conn = conectar(args.db) if args.db else conectar()
+    init_db(conn)
+    client = PNCPClient(cfg.pncp, usar_cache=not args.sem_cache)
+
+    resumo = coletar(client, conn, ufs=ufs, modalidades=modalidades, dias=args.dias,
+                     max_paginas=args.max_paginas)
+    print(f"janela            : {resumo['janela']}")
+    print(f"UF(s)             : {', '.join(ufs)} | modalidades: {modalidades}")
+    print(f"vistos            : {resumo['vistos']}")
+    print(f"gravados          : {resumo['gravados']} (novos: {resumo['novos']})")
+    print(f"ok / suspeitos    : {resumo['ok']} / {resumo['suspeitos']}")
+    print(f"descartados       : {resumo['invalidos']} (sem numeroControlePNCP)")
+    print(f"por UF            : {resumo['por_uf']}")
+    print(f"total no banco    : {contar(conn)}")
+    return 0
+
+
 def _cmd_recon(_args: argparse.Namespace) -> int:
     from pathlib import Path
 
@@ -70,10 +97,18 @@ def main(argv: list[str] | None = None) -> int:
     p_ping = sub.add_parser("ping", help="testa um provedor de LLM")
     p_ping.add_argument("alias", nargs="?", help="alias do provedor (padrão: alias_padrao)")
 
+    p_coletar = sub.add_parser("coletar", help="M1 — coleta diária do PNCP")
+    p_coletar.add_argument("--dias", type=int, default=7, help="janela de publicação (padrão: 7)")
+    p_coletar.add_argument("--ufs", help="UFs separadas por vírgula (padrão: config)")
+    p_coletar.add_argument("--modalidades", help="códigos de modalidade separados por vírgula (padrão: config)")
+    p_coletar.add_argument("--db", help="caminho do banco SQLite (padrão: data/radar.db)")
+    p_coletar.add_argument("--sem-cache", action="store_true", help="ignora o cache local")
+    p_coletar.add_argument("--max-paginas", type=int, default=None, help="limite de páginas por UF/modalidade")
+
     sub.add_parser("recon", help="reconhecimento da API do PNCP")
 
     args = parser.parse_args(argv)
-    return {"config": _cmd_config, "ping": _cmd_ping, "recon": _cmd_recon}[args.comando](args)
+    return {"config": _cmd_config, "ping": _cmd_ping, "coletar": _cmd_coletar, "recon": _cmd_recon}[args.comando](args)
 
 
 if __name__ == "__main__":

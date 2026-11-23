@@ -11,7 +11,7 @@ relatórios de métricas ao dono humano.
 
 - [x] Tarefa 1 — Reconhecimento da API do PNCP
 - [x] Tarefa 2 — Repositório, config.yaml, wrapper `llm.py`
-- [ ] Tarefa 3 — M1 Coleta + banco + validação (MA/PA/TO/PI)
+- [x] Tarefa 3 — M1 Coleta + banco + validação (MA/PA/TO/PI)
 - [ ] Tarefa 4 — M2 Triagem (Kimi)
 - [ ] Tarefa 5 — M3 + M4 (Análise + Verificação)
 - [ ] Tarefa 6 — M5/M6 (Boletim + Telegram)
@@ -54,6 +54,13 @@ py -3.11 -m radar ping deepseek
 # roda o reconhecimento da API do PNCP (Tarefa 1)
 py -3.11 -m radar recon
 
+# M1 — coleta diária (grava em data/radar.db; use --sem-cache para ignorar o cache)
+py -3.11 -m radar coletar --dias 7
+py -3.11 -m radar coletar --ufs MA --modalidades 8,6 --dias 3 --max-paginas 1
+
+# resumo do banco coletado
+py -3.11 tools/resumo_db.py
+
 # testes
 py -3.11 -m unittest discover -s tests -v
 ```
@@ -65,11 +72,17 @@ config.yaml            configuração geral e provedores de LLM (sem segredos)
 .env.example           modelo das variáveis de ambiente
 radar/config.py        carrega e valida config.yaml + .env (pydantic)
 radar/llm.py           wrapper chat(model_alias, messages): retry, fallback, custo
+radar/pncp_client.py   cliente dos 2 hosts do PNCP: backoff, pause, cache em disco
+radar/validacao.py     normalização e validação das contratações cruas
+radar/db.py            esquema SQLite (SPEC §6) e upsert
+radar/m1_coleta.py     M1 — coleta diária por UF x modalidade
 radar/logging_setup.py logging para console e logs/radar.log
-radar/cli.py           `python -m radar <config|ping|recon>`
+radar/cli.py           `python -m radar <config|ping|coletar|recon>`
 tools/recon_pncp.py    reconhecimento da API do PNCP
+tools/resumo_db.py     resumo do banco coletado
 docs/RECON_PNCP.md     achados da API (Tarefa 1)
 docs/NOTAS_LLM.md      decisões sobre modelos (Tarefa 2)
 logs/custos_llm.jsonl  ledger de custo por chamada (gerado; ignorado pelo git)
+data/radar.db          banco SQLite (gerado; ignorado pelo git)
 ```
 

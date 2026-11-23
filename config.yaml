@@ -27,6 +27,7 @@ pncp:
   max_tentativas: 4
   pausa_entre_requisicoes_s: 1.0
   tamanho_pagina: 50              # máximo permitido: 50
+  cache_ttl_h: 6.0                # validade do cache local em disco (horas)
 
 llm:
   alias_padrao: deepseek
