@@ -1,0 +1,10 @@
+# Dependências do Radar Licita MEI
+# Instalado/verificado no ambiente local (Python 3.11).
+requests>=2.31
+PyYAML>=6.0
+python-dotenv>=1.0
+pydantic>=2.6
+
+# --- Tarefas futuras (descomentar quando necessitar) ---
+# pdfplumber>=0.11            # Tarefa 5: extração de texto de PDF (M3)
+# python-telegram-bot>=21     # Tarefa 6: envio de boletim (M6)

@@ -1,0 +1,55 @@
+# Radar Licita MEI — configuração geral
+# NÃO coloque chaves aqui. Elas vêm do .env (ver .env.example).
+
+app:
+  nome: "Radar Licita MEI"
+  ambiente: "dev"                 # dev | prod
+  ufs_alvo: ["MA", "PA", "TO", "PI"]
+  # Códigos de modalidade do PNCP: 8=Dispensa, 6=Pregão Eletrônico, 4=Concorrência Eletrônica.
+  # Confirmar os demais códigos empiricamente (Tarefa 3).
+  modalidades_alvo: [8, 6, 4]
+  nichos:
+    - alimentos_merenda
+    - papelaria_escritorio
+    - ti_equipamentos
+    - limpeza_higiene
+    - obras_manutencao
+    - servicos_gerais
+    - veiculos_combustivel
+    - saude_insumos
+    - eventos_grafica
+
+pncp:
+  base_consulta: "https://pncp.gov.br/api/consulta"
+  base_arquivos: "https://pncp.gov.br/pncp-api"   # host não documentado (itens/anexos) — ver docs/RECON_PNCP.md
+  user_agent: "RadarLicitaMEI/0.1 (+contato a definir)"
+  timeout_s: 90
+  max_tentativas: 4
+  pausa_entre_requisicoes_s: 1.0
+  tamanho_pagina: 50              # máximo permitido: 50
+
+llm:
+  alias_padrao: deepseek
+  # Cadeia de fallback: se o primeiro falhar, tenta o próximo da lista.
+  fallback:
+    deepseek:     [deepseek, kimi_nvidia]
+    kimi_nvidia:  [kimi_nvidia, deepseek]
+  provedores:
+    deepseek:
+      base_url: "https://api.deepseek.com/v1"
+      api_key_env: "DEEPSEEK_API_KEY"
+      modelo: "deepseek-chat"          # RECHECAR nome do modelo antes de faturar
+      suporta_json: true
+      timeout_s: 120
+      max_tentativas: 3
+      preco_entrada_por_mtok_usd: 0.27 # RECHECAR preço oficial
+      preco_saida_por_mtok_usd: 1.10   # RECHECAR preço oficial
+    kimi_nvidia:
+      base_url: "https://integrate.api.nvidia.com/v1"
+      api_key_env: "NVIDIA_API_KEY"
+      modelo: "moonshotai/kimi-k3.1-pro"  # confirmado no catálogo NVIDIA em 23/11/2026 (o antigo kimi-k2-instruct foi EOL em 12/05/2026)
+      suporta_json: true
+      timeout_s: 150
+      max_tentativas: 2
+      preco_entrada_por_mtok_usd: 0.0  # camada gratuita; rechecar disponibilidade
+      preco_saida_por_mtok_usd: 0.0
