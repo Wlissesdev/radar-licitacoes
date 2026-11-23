@@ -20,7 +20,7 @@ Ponto positivo crítico: **o PDF do edital é baixável** e o pipeline M1→M3 �
 ### 2.1 Hosts e cabeçalhos
 - **Listagem / detalhe:** `https://pncp.gov.br/api/consulta` (é este que tem Swagger em `/api/consulta/swagger-ui/index.html`; o OpenAPI está em `/api/consulta/v3/api-docs`).
 - **Itens / anexos / download de PDF:** `https://pncp.gov.br/pncp-api` (também responde em `/api/pncp`). **Não aparece no Swagger.**
-- **Cabeçalho obrigatório:** `User-Agent`. Sem ele, toda chamada retorna **403**. Com ele, 200.
+- **Cabeçalho recomendado:** `User-Agent` descritivo + `Accept: application/json`. Observação de campo: um cliente HTTP sem UA "de navegador" recebeu **403**; com UA descritivo (e mesmo com o UA padrão do `urllib`) as chamadas retornam **200**. Regra: sempre enviar UA identificável.
 - Codificação: UTF-8 (o mojibake no console do Windows é só exibição).
 
 ### 2.2 Endpoints relevantes (confirmados)
@@ -65,9 +65,9 @@ Exemplo real (INMEQ/MA, dispensa 2026/6):
 - `dataAberturaProposta` pode vir com hora `00:00:00`.
 
 ### 2.5 Latência e limites
-- `publicacao`: ~5–6 s por página. `atualizacao`: ~13 s. `proposta`: 53 s → 500.
+- `publicacao`: 0.2–6 s por página (varia bastante — provável cache/edge). `atualizacao`: ~13 s. `proposta`: 53–61 s → **500**.
 - `tamanhoPagina` máximo: **50** (listagem). Itens não paginam.
-- Conclusão: timeouts ≥ 60 s e backoff exponencial são obrigatórios; requisições devem ser sequenciais com pausa.
+- Conclusão: timeouts ≥ 60 s e backoff exponencial são obrigatórios; requisições sequenciais com pausa; não assumir latência baixa.
 
 ## 3. Volumes de amostra (MA, 16–23/11/2026)
 - Dispensa (`codigoModalidadeContratacao=8`): 67 registros em `publicacao`; **301** em `atualizacao`.

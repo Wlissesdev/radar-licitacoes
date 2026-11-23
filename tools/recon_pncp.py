@@ -54,17 +54,17 @@ def show(title, status, body, dt, as_json=True):
 
 
 def main():
-    # 1) 403 sem User-Agent (prova de que o cabecalho e obrigatorio)
-    print("\n### PROVA: 403 sem User-Agent ###")
+    # 1) itens/arquivos NAO sao servidos no host api/consulta (403 determinístico)
+    print("\n### PROVA: itens/arquivos NAO existem em api/consulta (403) ###")
+    cnpj0, ano0, seq0 = "01596450000151", 2026, 6
     req = urllib.request.Request(
-        CONSULTA + "/v1/contratacoes/publicacao?dataInicial=20261116&dataFinal=20261123"
-        "&codigoModalidadeContratacao=8&uf=MA&pagina=1&tamanhoPagina=10"
+        f"{CONSULTA}/v1/orgaos/{cnpj0}/compras/{ano0}/{seq0}/itens", headers=HEADERS
     )
     try:
         urllib.request.urlopen(req, timeout=30)
-        print("  inesperado: retornou 200 sem User-Agent")
+        print("  inesperado: retornou 200 (esperado 403 — usar host pncp-api)")
     except urllib.error.HTTPError as e:
-        print(f"  status={e.code} (esperado 403)")
+        print(f"  status={e.code} (esperado 403 — usar host pncp-api)")
 
     # 2) publicacao por UF e modalidade
     p = urllib.parse.urlencode({
