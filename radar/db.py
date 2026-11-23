@@ -109,6 +109,15 @@ CREATE TABLE IF NOT EXISTS metricas_semana (
   custo_ia          REAL,
   taxa_clique       REAL
 );
+
+CREATE TABLE IF NOT EXISTS triagens (
+  id_pncp        TEXT PRIMARY KEY,
+  nicho          TEXT,
+  confianca      REAL,
+  palavras_chave TEXT,
+  modelo_usado   TEXT,
+  criado_em      TEXT
+);
 """
 
 

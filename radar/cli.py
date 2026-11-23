@@ -72,6 +72,25 @@ def _cmd_coletar(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_triar(args: argparse.Namespace) -> int:
+    from .db import conectar, init_db
+    from .m2_triagem import triar
+
+    conn = conectar(args.db) if args.db else conectar()
+    init_db(conn)
+    resumo = triar(conn, alias=args.alias, lote=args.lote, limite=args.limite)
+    print(f"pendentes      : {resumo['pendentes']}")
+    print(f"lotes          : {resumo['lotes']} (de {args.lote} itens)")
+    print(f"classificados  : {resumo['classificados']}")
+    print(f"outros         : {resumo['outros']}")
+    print(f"baixa confiança: {resumo['baixa_confianca']}")
+    print(f"sem resposta   : {resumo['sem_resposta']}")
+    print(f"tokens         : in={resumo['tokens_entrada']} out={resumo['tokens_saida']}")
+    print(f"custo_usd      : {resumo['custo_usd']:.6f}")
+    print(f"tempo          : {resumo['tempo_s']}s")
+    return 0
+
+
 def _cmd_recon(_args: argparse.Namespace) -> int:
     from pathlib import Path
 
@@ -105,10 +124,17 @@ def main(argv: list[str] | None = None) -> int:
     p_coletar.add_argument("--sem-cache", action="store_true", help="ignora o cache local")
     p_coletar.add_argument("--max-paginas", type=int, default=None, help="limite de páginas por UF/modalidade")
 
+    p_triar = sub.add_parser("triar", help="M2 — classifica objetos por nicho (Kimi)")
+    p_triar.add_argument("--limite", type=int, default=None, help="máximo de itens a triar")
+    p_triar.add_argument("--lote", type=int, default=20, help="itens por chamada (padrão: 20)")
+    p_triar.add_argument("--alias", default=None, help="alias do provedor (padrão: kimi_nvidia)")
+    p_triar.add_argument("--db", help="caminho do banco SQLite")
+
     sub.add_parser("recon", help="reconhecimento da API do PNCP")
 
     args = parser.parse_args(argv)
-    return {"config": _cmd_config, "ping": _cmd_ping, "coletar": _cmd_coletar, "recon": _cmd_recon}[args.comando](args)
+    return {"config": _cmd_config, "ping": _cmd_ping, "coletar": _cmd_coletar,
+            "triar": _cmd_triar, "recon": _cmd_recon}[args.comando](args)
 
 
 if __name__ == "__main__":
