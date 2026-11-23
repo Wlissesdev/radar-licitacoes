@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Ambiente / segredos
+.env
+*.env
+!.env.example
+
+# Banco e cache locais
+*.db
+*.sqlite
+*.sqlite3
+data/
+cache/
+
+# Logs
+*.log
+logs/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
